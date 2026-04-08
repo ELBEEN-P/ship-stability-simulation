@@ -50,7 +50,6 @@ def load_and_train_models():
 
 # --- [4] 메인 웹 UI ---
 st.title("🌊 AI 기반 선박 복원성 실시간 예측 대시보드")
-st.markdown("**White 유체역학 P2.128 이론 검증 및 물리적 특성 공학(Feature Engineering) 적용 모델**")
 st.markdown("---")
 
 with st.spinner("AI 모델을 초기화하고 있습니다..."):
