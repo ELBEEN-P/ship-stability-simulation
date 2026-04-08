@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -6,6 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.metrics import mean_squared_error, accuracy_score, r2_score
 import sys 
+import joblib  # 모델 저장을 위해 추가!
 
 def apply_feature_engineering(df):
     X = df.copy()
@@ -23,14 +23,13 @@ def build_and_train_models():
         print("\n🚨 [오류] 'ship_data.csv' 파일이 없습니다. task_2.py를 먼저 실행해 주세요!\n")
         sys.exit()
         
-
     if len(df) < 4500:
         print("\n" + "!"*65)
         print("🚨 [치명적 문제 감지] AI가 예전 데이터(3,000개)로 학습하려 합니다!")
         print("🚨 이대로 학습하면 빙산 문제를 또 틀리게 됩니다.")
         print("🚨 터미널에서 반드시 'python task_2.py'를 먼저 실행하여 데이터를 갱신해 주세요!")
         print("!"*65 + "\n")
-        sys.exit() # 엉뚱한 학습을 막기 위해 프로그램을 여기서 강제 종료시킵니다.
+        sys.exit() 
     
     X_base = df[['Shape', 'B', 'H', 'SG', 'KG']]
     X_engineered = apply_feature_engineering(X_base)
@@ -116,7 +115,6 @@ def interactive_prediction(reg_model, clf_model, scaler, feature_cols):
                 else: print("  [경고] 무게중심 높이 KG는 0 이상이어야 합니다.\n")
             except ValueError: print("  [경고] 숫자만 입력할 수 있습니다.\n")
 
-        # 입력 데이터에도 동일하게 물리적 힌트를 적용합니다.
         input_df = pd.DataFrame([[user_shape, user_B, user_H, user_SG, user_KG]], 
                                 columns=['Shape', 'B', 'H', 'SG', 'KG'])
         
@@ -140,5 +138,14 @@ def interactive_prediction(reg_model, clf_model, scaler, feature_cols):
         print(f"  예측된 선박 상태: {status_str}")
 
 if __name__ == '__main__':
+    # 1. 모델 학습 진행 및 변수 할당
     reg, clf, scl, cols = build_and_train_models()
+    
+    # 2. 학습 완료 직후 모델 파일 저장 (.pkl)
+    joblib.dump(reg, 'stability_reg_model.pkl')
+    joblib.dump(clf, 'stability_clf_model.pkl')
+    joblib.dump(scl, 'scaler.pkl')
+    print("✅ 성공: 학습된 모델이 폴더에 .pkl 파일로 저장되었습니다!\n")
+    
+    # 3. 실시간 예측 시스템 실행
     interactive_prediction(reg, clf, scl, cols)
